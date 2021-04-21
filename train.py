@@ -1,6 +1,8 @@
 import os
+import math 
+import time
 
-from tqdm.notebook import tqdm
+from tqdm import tqdm
 import multiprocessing as mp
 import numpy as np
 
@@ -9,6 +11,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
 
 from dataset import CapchaDataset, remove_file_extension
 from config import *
@@ -16,6 +19,7 @@ from model import CRNN
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 cpu_count = mp.cpu_count()
+
 
 def initialize_weights(m):
     class_name = m.__class__.__name__
@@ -27,37 +31,76 @@ def initialize_weights(m):
         m.weight.data.normal_(1.0, 0.02)
         m.bias.data.fill_(0)
 
+
+def encode(labels):
+    lens = [len(label) for label in labels]
+    lens = torch.IntTensor(lens)
+    
+    labels_string = ''.join(labels)
+    targets = [char2idx[char] for char in labels_string]
+    targets = torch.IntTensor(targets)
+    
+    return (targets, lens)
+
+
+def compute_loss(gtruth, pred, criterion):
+    """
+    text_batch: list of strings of length equal to batch size
+    text_batch_logits: Tensor of size([T, batch_size, num_classes])
+    """
+    predicted_capchas = F.log_softmax(pred, 2)
+    predicted_capchas_lens = torch.full(size=(predicted_capchas.size(1),), 
+                                       fill_value=predicted_capchas.size(0), 
+                                       dtype=torch.int32).to(DEVICE)
+
+    gtruth_capchas, gtruth_capchas_lens = encode(gtruth)
+    loss = criterion(predicted_capchas, gtruth_capchas, predicted_capchas_lens, gtruth_capchas_lens)
+
+    return loss
+
 def train(train_loader, model, criterion, optimizer):
-    epoch_losses = []
-    iteration_losses = []
-    num_updates_epochs = []
-    
-    for epoch in tqdm(range(1, NUM_EPOCHS +1)):
-        epoch_loss_list = []
-        num_updates_epoch = 0
-    
-        for x, y in tqdm(train_loader, leave=False):
-            optimizer.zero_grad()
-            pred = crnn(x.to(DEVICE))
-            loss = compute_loss(y, pred)
-            iteration_loss = loss.item()
-            
-            if np.isnan(iteration_loss) or np.isinf(iteration_loss):
-                continue
-            
-            num_updates_epoch += 1
-            iteration_losses.append(iteration_loss)
-            epoch_loss_list.append(iteration_loss)
-            loss.backward()
-            nn.utils.clip_grad_norm_(crnn.parameters(), CLIP_NORM)
-            optimizer.step()
-            
-        epoch_loss = np.mean(epoch_loss_list)
-        print(f'Epoch {epoch}:    Loss {loss}     Num_updates {num_updates_epoch}')
-    
-    epoch_losses.append(epoch_loss)
-    num_updates_epochs.append(num_updates_epoch)
-    # lr_scheduler.step(epoch_loss)
+
+    epoch_loss = 0
+    batch_num = 0
+    for x, y in tqdm(train_loader, leave=False):
+
+        optimizer.zero_grad()
+        pred = model(x.to(DEVICE))
+
+        loss = compute_loss(y, pred, criterion)
+        loss.backward()
+        nn.utils.clip_grad_norm_(model.parameters(), CLIP_NORM)
+        optimizer.step()
+
+        epoch_loss += loss.item()
+        batch_num += 1
+
+    return epoch_loss / batch_num 
+
+
+def evaluate(val_loader, model, criterion):
+
+    epoch_loss = 0
+    batch_num = 0
+
+    with torch.no_grad():
+        for x, y in tqdm(val_loader, leave=False):
+
+            pred = model(x.to(DEVICE))
+
+            loss = compute_loss(y, pred, criterion)
+
+            epoch_loss += loss.item()
+            batch_num += 1
+
+    return epoch_loss / batch_num 
+
+
+def epoch_time(start_time, end_time):
+    elapsed_time = end_time - start_time
+    elapsed_mins = int(elapsed_time / 60)
+    elapsed_secs = int(elapsed_time - (elapsed_mins * 60))
+    return elapsed_mins, elapsed_secs
 
 
 if __name__ == "__main__":
@@ -65,6 +108,13 @@ if __name__ == "__main__":
     # Define data paths
     train_data_path = '/mnt/c/Users/samsung/tanker/data/simplecaptcha/train/'
     val_data_path = '/mnt/c/Users/samsung/tanker/data/simplecaptcha/val/'
+    log_dir = './logs/'
+    checkpoint_dir = './checkpoints/'
+
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+    if not os.path.exists(checkpoint_dir):
+        os.makedirs(checkpoint_dir)
 
     # Define character maps
     captcha_images = []
@@ -86,25 +136,57 @@ if __name__ == "__main__":
 
     # Get batches of dataset
     train_dataset = CapchaDataset(train_data_path)
-    test_dataset = CapchaDataset(val_data_path)
+    val_dataset = CapchaDataset(val_data_path)
 
     train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, num_workers=cpu_count, shuffle=True)
-    test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, num_workers=cpu_count, shuffle=False)
+    val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, num_workers=cpu_count, shuffle=False)
 
     print(f'{len(train_loader)} batches in the train_loader')
-    print(f'{len(test_loader)} batches in the test_loader')
+    print(f'{len(val_loader)} batches in the test_loader')
 
     # Define model
     num_chars = len(vocabulary)
     rnn_hidden_size = 256
 
-    crnn = CRNN(num_chars=num_chars, rnn_hidden_size=rnn_hidden_size)
-    crnn.apply(initialize_weights)
-    crnn = crnn.to(DEVICE)
+    model = CRNN(num_chars=num_chars, rnn_hidden_size=rnn_hidden_size)
+    model.apply(initialize_weights)
+    crnn = model.to(DEVICE)
 
     criterion = nn.CTCLoss(blank=0)
-    optimizer = optim.Adam(crnn.parameters(), lr=LEARNING_RATE, weight_decay= WEIGHT_DECAY)
-    # lr_scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, verbose=True, patience=5)
+    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= WEIGHT_DECAY)
+    lr_scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, verbose=True, patience=5)
+
+    # Define writer
+    writer = SummaryWriter(log_dir)
     
+    # Start Train & Evaluate
+    best_valid_loss = float('inf')
+    best_epoch = 0
+    for epoch in tqdm(range(1, NUM_EPOCHS +1)):
+        start_time = time.time()
+
+        train_loss = train(train_loader, model, criterion, optimizer)
+        val_loss = evaluate(val_loader, model, criterion)
+
+        end_time = time.time()
+
+        lr_scheduler.step(train_loss)
+
+        writer.add_scalar('Loss/train', train_loss, epoch)
+        writer.add_scalar('Loss/evaluate', val_loss, epoch)
+
+        if epoch % 10 == 0:
+            torch.save(model.state_dict(), checkpoint_dir+"epoch_%03d_loss_%.06f.pt"%(epoch, val_loss))
+        if val_loss < best_valid_loss:
+            best_valid_loss = val_loss
+            best_epoch = epoch
+            torch.save(model.state_dict(), checkpoint_dir+'crnn-best-model.pt')
+        
+        epoch_mins, epoch_secs = epoch_time(start_time, end_time)
+        print(f'\nEpoch: {epoch:02} | Time: {epoch_mins}m {epoch_secs}s')
+        print(f'\tTrain Loss: {train_loss:.3f} | Train PPL: {math.exp(train_loss):7.3f}')
+        print(f'\tVal Loss: {val_loss:.3f} |  Val. PPL: {math.exp(val_loss):7.3f}')
+        print(f'\tBest Epoch: {best_epoch}')
+
 
 

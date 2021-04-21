@@ -1,8 +1,7 @@
 import os
-
 from PIL import Image
 
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 
 def remove_file_extension(filename):
@@ -33,3 +32,15 @@ class CapchaDataset(Dataset):
             )
         ])
         return transform_ops(image)
+
+if __name__ == "__main__":
+     val_data_path = '/mnt/c/Users/samsung/tanker/data/simplecaptcha/val/'
+     val_dataset = CapchaDataset(val_data_path)
+     val_loader = DataLoader(val_dataset, batch_size=1, num_workers=1, shuffle=True)
+     
+     piltf = transforms.ToPILImage()
+     for ind, (x, y) in enumerate(val_loader):
+         if ind < 10:
+            img = piltf(x[0])
+            img.save('./'+str(ind)+'.png')
+            print(y)
