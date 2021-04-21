@@ -1,6 +1,6 @@
 import os
 
-import tqdm
+from tqdm.notebook import tqdm
 import multiprocessing as mp
 import numpy as np
 
@@ -63,8 +63,8 @@ def train(train_loader, model, criterion, optimizer):
 if __name__ == "__main__":
     
     # Define data paths
-    train_data_path = 'C:/Users/samsung/tanker/data/simplecaptcha/train/'
-    val_data_path = 'C:/Users/samsung/tanker/data/simplecaptcha/val/'
+    train_data_path = '/mnt/c/Users/samsung/tanker/data/simplecaptcha/train/'
+    val_data_path = '/mnt/c/Users/samsung/tanker/data/simplecaptcha/val/'
 
     # Define character maps
     captcha_images = []
