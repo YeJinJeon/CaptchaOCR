@@ -16,6 +16,7 @@ from torch.utils.tensorboard import SummaryWriter
 from dataset import CapchaDataset, remove_file_extension
 from config import *
 from model import CRNN
+from utils.util import *
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 cpu_count = mp.cpu_count()
@@ -30,17 +31,6 @@ def initialize_weights(m):
     elif class_name.find('BatchNorm') != -1:
         m.weight.data.normal_(1.0, 0.02)
         m.bias.data.fill_(0)
-
-
-def encode(labels):
-    lens = [len(label) for label in labels]
-    lens = torch.IntTensor(lens)
-    
-    labels_string = ''.join(labels)
-    targets = [char2idx[char] for char in labels_string]
-    targets = torch.IntTensor(targets)
-    
-    return (targets, lens)
 
 
 def compute_loss(gtruth, pred, criterion):
@@ -66,7 +56,10 @@ def train(train_loader, model, criterion, optimizer):
 
         optimizer.zero_grad()
         pred = model(x.to(DEVICE))
-
+        pred_decode = decode(pred.cpu())
+        pred_final = [correct_prediction(p) for p in pred_decode]
+        print(f'\npred: {pred_final}')
+        print(f'target: {y}')
         loss = compute_loss(y, pred, criterion)
         loss.backward()
         nn.utils.clip_grad_norm_(model.parameters(), CLIP_NORM)

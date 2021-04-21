@@ -20,37 +20,10 @@ from dataset import CapchaDataset, remove_file_extension
 from config import *
 from model import CRNN
 from train import compute_loss, epoch_time
+from utils.util import *
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 cpu_count = mp.cpu_count()
-
-def decode(labels):
-    tokens = F.softmax(labels, 2).argmax(2)
-    tokens = tokens.numpy().T
-    capchas = []
-    
-    for token in tokens:
-        chars = [idx2char[idx] for idx in token]
-        capcha = ''.join(chars)
-        capchas.append(capcha)
-    return capchas
-
-
-def remove_duplicates(text):
-    if len(text) > 1:
-        letters = [text[0]] + [letter for idx, letter in enumerate(text[1:], start=1) if text[idx] != text[idx-1]]
-    elif len(text) == 1:
-        letters = [text[0]]
-    else:
-        return ""
-    return "".join(letters)
-
-
-def correct_prediction(word):
-    parts = word.split("-")
-    parts = [remove_duplicates(part) for part in parts]
-    corrected_word = "".join(parts)
-    return corrected_word
 
 
 def test(test_loader, model, criterion):
