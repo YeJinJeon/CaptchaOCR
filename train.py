@@ -150,7 +150,7 @@ if __name__ == "__main__":
 
     model = CRNN(num_chars=num_chars, rnn_hidden_size=rnn_hidden_size)
     model.apply(initialize_weights)
-    crnn = model.to(DEVICE)
+    model = model.to(DEVICE)
 
     criterion = nn.CTCLoss(blank=0)
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= WEIGHT_DECAY)
