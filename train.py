@@ -1,6 +1,7 @@
 import os
 import math 
 import time
+import argparse
 
 from tqdm import tqdm
 import multiprocessing as mp
@@ -58,8 +59,8 @@ def train(train_loader, model, criterion, optimizer):
         pred = model(x.to(DEVICE))
         pred_decode = decode(pred.cpu())
         pred_final = [correct_prediction(p) for p in pred_decode]
-        print(f'\npred: {pred_final}')
-        print(f'target: {y}')
+        # print(f'\npred: {pred_final}')
+        # print(f'target: {y}')
         loss = compute_loss(y, pred, criterion)
         loss.backward()
         nn.utils.clip_grad_norm_(model.parameters(), CLIP_NORM)
@@ -97,6 +98,12 @@ def epoch_time(start_time, end_time):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="CaptchaOCR")
+    parser.add_argument(
+        "--resume",
+        action = "store_true"
+    )
+    args = parser.parse_args()
     
     # Define data paths
     train_data_path = '/mnt/c/Users/samsung/tanker/data/simplecaptcha/train/'
@@ -142,12 +149,21 @@ if __name__ == "__main__":
     rnn_hidden_size = 256
 
     model = CRNN(num_chars=num_chars, rnn_hidden_size=rnn_hidden_size)
-    model.apply(initialize_weights)
+    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= WEIGHT_DECAY)
+    lr_scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, verbose=True, patience=5)
+
+    if args.resume == True:
+        resume_checkpoint = 'crnn-best-model.pt'
+        checkpoint = torch.load(checkpoint_dir+resume_checkpoint)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        start_epoch = checkpoint['epoch'] + 1
+    else:
+        model.apply(initialize_weights)
+        start_epoch = 1
     model = model.to(DEVICE)
 
     criterion = nn.CTCLoss(blank=0)
-    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= WEIGHT_DECAY)
-    lr_scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, verbose=True, patience=5)
 
     # Define writer
     writer = SummaryWriter(log_dir)
@@ -155,7 +171,7 @@ if __name__ == "__main__":
     # Start Train & Evaluate
     best_valid_loss = float('inf')
     best_epoch = 0
-    for epoch in tqdm(range(1, NUM_EPOCHS +1)):
+    for epoch in tqdm(range(start_epoch, NUM_EPOCHS +1)):
         start_time = time.time()
 
         train_loss = train(train_loader, model, criterion, optimizer)
@@ -169,11 +185,19 @@ if __name__ == "__main__":
         writer.add_scalar('Loss/evaluate', val_loss, epoch)
 
         if epoch % 10 == 0:
-            torch.save(model.state_dict(), checkpoint_dir+"epoch_%03d_loss_%.06f.pt"%(epoch, val_loss))
+            torch.save({
+                'epoch': epoch,
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+            }, checkpoint_dir+"epoch_%03d.pt"%(epoch))
         if val_loss < best_valid_loss:
             best_valid_loss = val_loss
             best_epoch = epoch
-            torch.save(model.state_dict(), checkpoint_dir+'crnn-best-model.pt')
+            torch.save({
+                'epoch': best_epoch,
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+            }, checkpoint_dir+'crnn-best-model.pt')
         
         epoch_mins, epoch_secs = epoch_time(start_time, end_time)
         print(f'\nEpoch: {epoch:02} | Time: {epoch_mins}m {epoch_secs}s')
