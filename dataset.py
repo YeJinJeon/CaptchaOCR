@@ -1,6 +1,7 @@
 import os
 from PIL import Image
 
+import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 
@@ -20,20 +21,22 @@ class CapchaDataset(Dataset):
         image_filepath = os.path.join(self.base_dir, image_filename)
         image = Image.open(image_filepath).convert('RGB')
         image = self.transform(image)
+        image = (image > 0 ).to(image.dtype)
         label = remove_file_extension(image_filename)
         return (image, label)
     
     def transform(self, image):
         transform_ops = transforms.Compose([
             transforms.ToTensor(),
-            transforms.Normalize(
-                mean=(0.485, 0.456, 0.406),
-                std=(0.229, 0.224, 0.225)
-            )
+            # transforms.Normalize(
+            #     mean=(0.485, 0.456, 0.406),
+            #     std=(0.229, 0.224, 0.225)
+            # )
         ])
         return transform_ops(image)
 
 if __name__ == "__main__":
+
      val_data_path = '/mnt/c/Users/samsung/tanker/data/simplecaptcha/val/'
      val_dataset = CapchaDataset(val_data_path)
      val_loader = DataLoader(val_dataset, batch_size=1, num_workers=1, shuffle=True)
