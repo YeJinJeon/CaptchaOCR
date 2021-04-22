@@ -59,7 +59,7 @@ def test(test_loader, model, criterion):
 if __name__ == "__main__":
     
     # Define data paths
-    test_data_path = '/mnt/c/Users/samsung/tanker/data/simplecaptcha/test/'
+    test_data_path = '/mnt/c/Users/samsung/tanker/data/simplecaptcha/test_sc/'
 
     # Define character maps
     letters = ['2', '3', '4', '5', '6', '7', '8', 
@@ -81,7 +81,8 @@ if __name__ == "__main__":
     rnn_hidden_size = 256
 
     model = CRNN(num_chars=num_chars, rnn_hidden_size=rnn_hidden_size)
-    model.load_state_dict(torch.load('checkpoints/crnn-best-model.pt'))
+    checkpoint = torch.load('checkpoints/crnn-best-model.pt')
+    model.load_state_dict(checkpoint['model_state_dict'])
     model = model.to(DEVICE)
 
     criterion = nn.CTCLoss(blank=0)
@@ -91,7 +92,7 @@ if __name__ == "__main__":
 
     test_loss, result = test(test_loader, model, criterion)
     acc = accuracy_score(result['Actual'], result['Prediction'])
-    result.to_csv('./result.csv')
+    result.to_csv('./result_sc.csv')
     end_time = time.time()
     
     test_mins, test_secs = epoch_time(start_time, end_time)
