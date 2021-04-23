@@ -1,4 +1,5 @@
 import os
+import sys
 import math 
 import time
 import argparse
@@ -49,6 +50,7 @@ def compute_loss(gtruth, pred, criterion):
 
     return loss
 
+
 def train(train_loader, model, criterion, optimizer):
 
     epoch_loss = 0
@@ -59,8 +61,6 @@ def train(train_loader, model, criterion, optimizer):
         pred = model(x.to(DEVICE))
         pred_decode = decode(pred.cpu())
         pred_final = [correct_prediction(p) for p in pred_decode]
-        # print(f'\npred: {pred_final}')
-        # print(f'target: {y}')
         loss = compute_loss(y, pred, criterion)
         loss.backward()
         nn.utils.clip_grad_norm_(model.parameters(), CLIP_NORM)
@@ -124,15 +124,11 @@ if __name__ == "__main__":
 
     images = [remove_file_extension(image) for image in captcha_images]
     images = "".join(images)
-    letters = sorted(list(set(list(images))))
-    print(f'There are {len(letters)} unique letters in the dataset: {letters}')
+    data_letters = sorted(list(set(list(images))))
+    print(f'There are {len(data_letters)} unique letters in the dataset: {data_letters}')
 
-    vocabulary = ["-"] + letters
-    idx2char = {k:v for k,v in enumerate(vocabulary, start=0)}
-    char2idx = {v:k for k,v in idx2char.items()}
-    print(len(vocabulary))
-    print(idx2char)
-    print(char2idx)
+    if data_letters != letters:
+        sys.exit('Dataset contains other letters')
 
     # Get batches of dataset
     train_dataset = CapchaDataset(train_data_path)
