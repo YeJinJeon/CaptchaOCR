@@ -59,11 +59,9 @@ def test(test_loader, model, criterion):
 if __name__ == "__main__":
     
     # Define data paths
-    test_data_path = '/mnt/c/Users/samsung/tanker/data/simplecaptcha/test_sc/'
+    test_data_path = '/mnt/c/Users/samsung/tanker/data/simplecaptcha/test/'
 
     # Define character maps
-    letters = ['2', '3', '4', '5', '6', '7', '8', 
-                'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'k', 'm', 'n', 'p', 'r', 'w', 'x', 'y']
     vocabulary = ["-"] + letters
     idx2char = {k:v for k,v in enumerate(vocabulary, start=0)}
     char2idx = {v:k for k,v in idx2char.items()}
@@ -92,7 +90,7 @@ if __name__ == "__main__":
 
     test_loss, result = test(test_loader, model, criterion)
     acc = accuracy_score(result['Actual'], result['Prediction'])
-    result.to_csv('./result_sc.csv')
+    result.to_csv('./result.csv')
     end_time = time.time()
     
     test_mins, test_secs = epoch_time(start_time, end_time)
