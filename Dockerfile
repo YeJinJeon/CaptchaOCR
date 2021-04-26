@@ -28,8 +28,7 @@ RUN pip3 install \
 
 # System Cleanup
 RUN apt-get autoremove -y && apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    conda clean -afy
+    rm -rf /var/lib/apt/lists/* 
 
 WORKDIR /home/yejin/CaptchaOCR
 VOLUME /home/yejin/CaptchaOCR
