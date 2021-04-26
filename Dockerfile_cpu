@@ -16,8 +16,8 @@ RUN pip3 install \
 # COPY data directory
 COPY ./data/simplecaptcha /home/data
 
-WORKDIR /home/Captcha
-VOLUME /home/Captcha
+WORKDIR /home/workspace/Captcha
+VOLUME /home/workspace/Captcha
 
 ENTRYPOINT ["/bin/bash"]
 

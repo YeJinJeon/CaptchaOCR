@@ -83,8 +83,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     # Define data paths
-    train_data_path = '/mnt/c/Users/samsung/tanker/data/simplecaptcha/train/'
-    val_data_path = '/mnt/c/Users/samsung/tanker/data/simplecaptcha/val/'
+    train_data_path = '../../data/train/'
+    val_data_path = '../../data/val/'
     log_dir = './logs/'
     checkpoint_dir = './checkpoints/'
 

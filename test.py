@@ -57,7 +57,7 @@ def test(test_loader, model, criterion):
 if __name__ == "__main__":
     
     # Define data paths
-    test_data_path = '/home/data/test_kab/'
+    test_data_path = '../../data/test_kab/'
 
     # Define character maps
     vocabulary = ["-"] + letters
