@@ -31,8 +31,8 @@ RUN apt-get autoremove -y && apt-get clean && \
     rm -rf /var/lib/apt/lists/* 
 
 # COPY data directory
-COPY ../data /home/data
-COPY . /home/CaptchaOCR
+COPY ./data /home/data
+COPY ./CaptchaOCR /home/CaptchaOCR
 
 WORKDIR /home/CaptchaOCR
 VOLUME /home/CaptchaOCR
