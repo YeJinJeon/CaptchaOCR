@@ -35,22 +35,6 @@ def initialize_weights(m):
         m.bias.data.fill_(0)
 
 
-def compute_loss(gtruth, pred, criterion):
-    """
-    text_batch: list of strings of length equal to batch size
-    text_batch_logits: Tensor of size([T, batch_size, num_classes])
-    """
-    predicted_capchas = F.log_softmax(pred, 2)
-    predicted_capchas_lens = torch.full(size=(predicted_capchas.size(1),), 
-                                       fill_value=predicted_capchas.size(0), 
-                                       dtype=torch.int32).to(DEVICE)
-
-    gtruth_capchas, gtruth_capchas_lens = encode(gtruth)
-    loss = criterion(predicted_capchas, gtruth_capchas, predicted_capchas_lens, gtruth_capchas_lens)
-
-    return loss
-
-
 def train(train_loader, model, criterion, optimizer):
 
     epoch_loss = 0
@@ -88,13 +72,6 @@ def evaluate(val_loader, model, criterion):
             batch_num += 1
 
     return epoch_loss / batch_num 
-
-
-def epoch_time(start_time, end_time):
-    elapsed_time = end_time - start_time
-    elapsed_mins = int(elapsed_time / 60)
-    elapsed_secs = int(elapsed_time - (elapsed_mins * 60))
-    return elapsed_mins, elapsed_secs
 
 
 if __name__ == "__main__":
