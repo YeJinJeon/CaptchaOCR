@@ -12,14 +12,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from torch.utils.tensorboard import SummaryWriter
 
 from sklearn.metrics import accuracy_score
 
 from dataset import CapchaDataset, remove_file_extension
 from config import *
 from model import CRNN
-from train import compute_loss, epoch_time
 from utils.util import *
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -59,7 +57,7 @@ def test(test_loader, model, criterion):
 if __name__ == "__main__":
     
     # Define data paths
-    test_data_path = '/mnt/c/Users/samsung/tanker/data/simplecaptcha/test/'
+    test_data_path = '/home/data/test_kab/'
 
     # Define character maps
     vocabulary = ["-"] + letters
@@ -79,7 +77,7 @@ if __name__ == "__main__":
     rnn_hidden_size = 256
 
     model = CRNN(num_chars=num_chars, rnn_hidden_size=rnn_hidden_size)
-    checkpoint = torch.load('checkpoints/crnn-best-model.pt')
+    checkpoint = torch.load('checkpoints/crnn-best-model-try4.pt')
     model.load_state_dict(checkpoint['model_state_dict'])
     model = model.to(DEVICE)
 
@@ -87,10 +85,10 @@ if __name__ == "__main__":
     
     # Start Test
     start_time = time.time()
-
+ 
     test_loss, result = test(test_loader, model, criterion)
     acc = accuracy_score(result['Actual'], result['Prediction'])
-    result.to_csv('./result.csv')
+    result.to_csv('./result_kab.csv')
     end_time = time.time()
     
     test_mins, test_secs = epoch_time(start_time, end_time)
