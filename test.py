@@ -69,7 +69,7 @@ if __name__ == "__main__":
 
     # Get batches of dataset
     test_dataset = CapchaDataset(test_data_path)
-    test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, num_workers=cpu_count, shuffle=True)
+    test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True)
     print(f'{len(test_loader)} batches in the test_loader')
 
     # Define model
