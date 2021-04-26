@@ -83,8 +83,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     # Define data paths
-    train_data_path = '../../data/train/'
-    val_data_path = '../../data/val/'
+    train_data_path = '../data/train/'
+    val_data_path = '../data/val/'
     log_dir = './logs/'
     checkpoint_dir = './checkpoints/'
 
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     lr_scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, verbose=True, patience=5)
 
     if args.resume == True:
-        resume_checkpoint = 'crnn-best-model.pt'
+        resume_checkpoint = 'epoch_040.pt'
         checkpoint = torch.load(checkpoint_dir+resume_checkpoint)
         model.load_state_dict(checkpoint['model_state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
