@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
     python3.8 python3-pip
 
 # Install related packages
-RUN pip install \
+RUN pip3 install \
     tqdm \
     numpy \ 
     pytz pandas python-dateutil \
