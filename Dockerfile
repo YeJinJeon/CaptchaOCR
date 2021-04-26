@@ -11,7 +11,8 @@ ENV LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/usr/local/lib
 
 # apt Install
 RUN apt-get update && apt-get install -y \
-    python3.8 python3-pip
+    python3.8 python3-pip \
+    git
 
 # Install related packages
 RUN pip3 install \
