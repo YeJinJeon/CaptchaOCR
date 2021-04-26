@@ -5,9 +5,9 @@ FROM nvidia/cuda:10.2-base-ubuntu18.04
 # ARG DEBIAN_FRONTEND=noninteractive
 
 # # Global Path Setting
-ENV CUDA_HOME /usr/local/cuda-10.2
-ENV LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${CUDA_HOME}/lib64
-ENV LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/usr/local/lib
+# ENV CUDA_HOME /usr/local/cuda-10.2
+# ENV LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${CUDA_HOME}/lib64
+# ENV LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/usr/local/lib
 
 # apt Install
 RUN apt-get update && apt-get install -y \
