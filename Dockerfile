@@ -30,7 +30,11 @@ RUN pip3 install \
 RUN apt-get autoremove -y && apt-get clean && \
     rm -rf /var/lib/apt/lists/* 
 
-WORKDIR /home/yejin/CaptchaOCR
-VOLUME /home/yejin/CaptchaOCR
+# COPY data directory
+COPY ../data /home/data
+COPY . /home/CaptchaOCR
+
+WORKDIR /home/CaptchaOCR
+VOLUME /home/CaptchaOCR
 
 ENTRYPOINT ["/bin/bash"]
