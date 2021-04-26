@@ -1,55 +1,37 @@
 FROM nvidia/cuda:10.2-base-ubuntu18.04
 
-# Deal with pesky Python 3 encoding issue
-ENV LANG C.UTF-8 
-ARG DEBIAN_FRONTEND=noninteractive
+# # Deal with pesky Python 3 encoding issue
+# ENV LANG C.UTF-8 
+# ARG DEBIAN_FRONTEND=noninteractive
 
-# Global Path Setting
-ENV CUDA_HOME /usr/local/cuda
-ENV LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${CUDA_HOME}/lib64
-ENV LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/usr/local/lib
+# # Global Path Setting
+# ENV CUDA_HOME /usr/local/cuda
+# ENV LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${CUDA_HOME}/lib64
+# ENV LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/usr/local/lib
 
-# Install essential Ubuntu packages
+# apt Install
 RUN apt-get update && apt-get install -y \
-    # Pillow, opencv
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    libglib2.0-0 \
-    libgl1-mesa-dev \
-    # essential
-    wget \
-    git \
-    vim 
+    python3.8 python3-pip
 
-# Install Miniconda and Python 3.8
-ENV PATH /opt/conda/bin:$PATH
-RUN echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh \
- && wget https://repo.continuum.io/miniconda/Miniconda3-py38_4.8.2-Linux-x86_64.sh -O ~/miniconda.sh \
- && chmod +x ~/miniconda.sh \
- && /bin/bash ~/miniconda.sh -b -p /opt/conda \
- && rm ~/miniconda.sh \
- && conda install -y python==3.8.1 \
- && conda clean -ya   
+# Install related packages
+RUN pip install \
+    tqdm \
+    numpy \ 
+    pytz pandas python-dateutil \
+    scipy threadpoolctl joblib scikit-learn
 
-# Intall pytorch for CUDA 10.2
-RUN conda install -y -c pytorch \
-    cudatoolkit=10.2 \
-    "pytorch=1.5.0=py3.8_cuda10.2.89_cudnn7.6.5_0" \
-    "torchvision=0.6.0=py38_cu102" \
- && conda clean -ya
+# Install pytorch
+# typing-extensions, torch, pillow, torchvision, torchaudio
+RUN pip3 install \
+    torch==1.8.1+cu102 torchvision==0.9.1+cu102 torchaudio===0.8.1 \
+    -f https://download.pytorch.org/whl/torch_stable.html
 
-# Install related python library
-RUN conda install mkl numpy scipy scikit-learn pandas matplotlib tensorboard && \
-    conda install -c conda-forge opencv tqdm 
-    
 # System Cleanup
 RUN apt-get autoremove -y && apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     conda clean -afy
 
-VOLUME /home/CaptchaOCR
-WORKDIR /home/CaptchaOCR
+WORKDIR /home/yejin/CaptchaOCR
+VOLUME /home/yejin/CaptchaOCR
 
-# IPython
 ENTRYPOINT ["/bin/bash"]
