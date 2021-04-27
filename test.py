@@ -56,8 +56,31 @@ def test(test_loader, model, criterion):
 
 if __name__ == "__main__":
     
+    parser = argparse.ArgumentParser(description="CaptchaOCR")
+    parser.add_argument(
+        "--sc",
+        action = "store_true"
+    )
+    parser.add_argument(
+        "--kab",
+        action = "store_true"
+    )
+    parser.add_argument(
+        "--checkpoint",
+        type = str
+    )
+    args = parser.parse_args()
+
     # Define data paths
-    test_data_path = '../data/test_kab/'
+    if args.kab:
+        test_data_path = '../data/test_kab/'
+        csv_path = './result_kab.csv'
+    if args.sc:
+        test_data_path = '../data/test/'
+        csv_path = './result.csv' 
+    else:
+        print("assign test dataset")
+        sys.exit()
 
     # Define character maps
     vocabulary = ["-"] + letters
@@ -77,7 +100,7 @@ if __name__ == "__main__":
     rnn_hidden_size = 256
 
     model = CRNN(num_chars=num_chars, rnn_hidden_size=rnn_hidden_size)
-    checkpoint = torch.load('checkpoints/crnn-best-model-try4.pt')
+    checkpoint = torch.load('checkpoints/'+ args.checkpoint)
     model.load_state_dict(checkpoint['model_state_dict'])
     model = model.to(DEVICE)
 
@@ -88,7 +111,7 @@ if __name__ == "__main__":
  
     test_loss, result = test(test_loader, model, criterion)
     acc = accuracy_score(result['Actual'], result['Prediction'])
-    result.to_csv('./result_kab.csv')
+    result.to_csv(csv_path)
     end_time = time.time()
     
     test_mins, test_secs = epoch_time(start_time, end_time)
