@@ -13,11 +13,12 @@ RUN pip3 install \
     # pytz pandas python-dateutil 
     scikit-learn \
     # scipy threadpoolctl joblib scikit-learn
-    tensorboard
+    tensorboard \
     # absl-py cachetools certifi chardet google-auth google-auth-oauthlib grpcio \
     # importlib-metadata markdown oauthlib protobuf pyasn1 pyasn1-modules requests requests-oauthlib rsa \
     # setuptools tensorboard tensorboard-data-server tensorboard-plugin-wit urllib3 werkzeug zipp
-
+    matplotlib 
+    
 # Install pytorch - typing-extensions, torch, pillow, torchvision, torchaudio
 RUN pip3 install \
     torch==1.8.1+cu102 torchvision==0.9.1+cu102 torchaudio===0.8.1 \
