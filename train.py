@@ -80,6 +80,11 @@ if __name__ == "__main__":
         "--resume",
         action = "store_true"
     )
+    parser.add_argument(
+        "--resume_checkpoint",
+        type = str,
+        default=None
+    )
     args = parser.parse_args()
     
     # Define data paths
@@ -126,8 +131,7 @@ if __name__ == "__main__":
     lr_scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, verbose=True, patience=5)
 
     if args.resume == True:
-        resume_checkpoint = 'epoch_040.pt'
-        checkpoint = torch.load(checkpoint_dir+resume_checkpoint)
+        checkpoint = torch.load(checkpoint_dir+args.resume_checkpoint)
         model.load_state_dict(checkpoint['model_state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         start_epoch = checkpoint['epoch'] + 1
