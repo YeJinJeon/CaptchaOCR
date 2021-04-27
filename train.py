@@ -140,23 +140,18 @@ if __name__ == "__main__":
     if args.resume == True:
         checkpoint = torch.load(checkpoint_dir + args.checkpoint)
         model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        start_epoch = checkpoint['epoch'] + 1
         if args.finetune:
             start_epoch = 1
-        else:
-            optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-            start_epoch = checkpoint['epoch'] + 1
     else:
         model.apply(initialize_weights)
         start_epoch = 1
     
-    # if torch.cuda.device_count() > 1:
-    #     # print("Let’s use ", torch.cuda.device_count(), 'GPUS!')
-    #     model = nn.DataParallel(model, device_ids=[0,1]).cuda()
-    # else:
-    #     model = model.to(DEVICE)
-    print(DEVICE)
-    model = model.cuda()
-
+    if torch.cuda.device_count() > 1:
+        model = nn.DataParallel(model, device_ids=[0,1]).cuda()
+    else:
+        model = model.to(DEVICE)
 
     criterion = nn.CTCLoss(blank=0)
 
