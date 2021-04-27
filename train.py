@@ -88,7 +88,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     # Define data paths
-    train_data_path = '../data/train/'
+    train_data_path = '../data/finetune/' ###################
     val_data_path = '../data/val/'
     log_dir = './logs/'
     checkpoint_dir = './checkpoints/'
