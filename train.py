@@ -157,12 +157,13 @@ if __name__ == "__main__":
         # writer.add_scalar('Loss/train', train_loss, epoch)
         # writer.add_scalar('Loss/evaluate', val_loss, epoch)
 
-        if epoch % 10 == 0:
+        if epoch % 5 == 0:
             torch.save({
                 'epoch': epoch,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
             }, checkpoint_dir+"epoch_%03d.pt"%(epoch))
+            print("Saving checkpoint=============================>")
         if val_loss < best_valid_loss:
             best_valid_loss = val_loss
             best_epoch = epoch
