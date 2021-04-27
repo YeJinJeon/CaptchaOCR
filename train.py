@@ -13,7 +13,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
-# from torch.utils.tensorboard import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 
 from dataset import CapchaDataset, remove_file_extension
 from config import *
@@ -139,7 +139,7 @@ if __name__ == "__main__":
     criterion = nn.CTCLoss(blank=0)
 
     # Define writer
-    # writer = SummaryWriter(log_dir)
+    writer = SummaryWriter(log_dir)
     
     # Start Train & Evaluate
     best_valid_loss = float('inf')
@@ -154,8 +154,8 @@ if __name__ == "__main__":
 
         lr_scheduler.step(train_loss)
 
-        # writer.add_scalar('Loss/train', train_loss, epoch)
-        # writer.add_scalar('Loss/evaluate', val_loss, epoch)
+        writer.add_scalar('Loss/train', train_loss, epoch)
+        writer.add_scalar('Loss/evaluate', val_loss, epoch)
 
         if epoch % 5 == 0:
             torch.save({
