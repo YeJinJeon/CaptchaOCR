@@ -149,11 +149,13 @@ if __name__ == "__main__":
         model.apply(initialize_weights)
         start_epoch = 1
     
-    if torch.cuda.device_count() > 1:
-        # print("Let’s use ", torch.cuda.device_count(), 'GPUS!')
-        model = nn.DataParallel(model, device_ids=[0,1]).cuda()
-    else:
-        model = model.to(DEVICE)
+    # if torch.cuda.device_count() > 1:
+    #     # print("Let’s use ", torch.cuda.device_count(), 'GPUS!')
+    #     model = nn.DataParallel(model, device_ids=[0,1]).cuda()
+    # else:
+    #     model = model.to(DEVICE)
+    print(DEVICE)
+    model = model.cuda()
 
 
     criterion = nn.CTCLoss(blank=0)
