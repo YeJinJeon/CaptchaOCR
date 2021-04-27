@@ -163,7 +163,6 @@ if __name__ == "__main__":
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
             }, checkpoint_dir+"epoch_%03d.pt"%(epoch))
-            print("Saving checkpoint=============================>")
         if val_loss < best_valid_loss:
             best_valid_loss = val_loss
             best_epoch = epoch
