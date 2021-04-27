@@ -81,14 +81,18 @@ if __name__ == "__main__":
         action = "store_true"
     )
     parser.add_argument(
-        "--resume_checkpoint",
+        "--finetune",
+        action = "store_true"
+    )
+    parser.add_argument(
+        "--checkpoint",
         type = str,
         default=None
     )
     args = parser.parse_args()
     
     # Define data paths
-    train_data_path = '../data/finetune/' ###################
+    train_data_path = '../data/train/'
     val_data_path = '../data/val/'
     log_dir = './logs/'
     checkpoint_dir = './checkpoints/'
@@ -112,6 +116,10 @@ if __name__ == "__main__":
     if data_letters != letters:
         sys.exit('Dataset contains other letters')
 
+    if args.finetune:
+        args.resume = True
+        train_data_path = '../data/finetune/'
+
     # Get batches of dataset
     train_dataset = CapchaDataset(train_data_path)
     val_dataset = CapchaDataset(val_data_path)
@@ -131,10 +139,13 @@ if __name__ == "__main__":
     lr_scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, verbose=True, patience=5)
 
     if args.resume == True:
-        checkpoint = torch.load(checkpoint_dir+args.resume_checkpoint)
+        checkpoint = torch.load(checkpoint_dir+args.checkpoint)
         model.load_state_dict(checkpoint['model_state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-        start_epoch = checkpoint['epoch'] + 1
+        if args.finetune:
+            start_epoch = 0
+        else:
+            start_epoch = checkpoint['epoch'] + 1
     else:
         model.apply(initialize_weights)
         start_epoch = 1
