@@ -23,7 +23,6 @@ from utils.util import *
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 cpu_count = mp.cpu_count()
 
-
 def initialize_weights(m):
     class_name = m.__class__.__name__
     if type(m) in [nn.Linear, nn.Conv2d, nn.Conv1d]:
@@ -139,17 +138,21 @@ if __name__ == "__main__":
     lr_scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, verbose=True, patience=5)
 
     if args.resume == True:
-        checkpoint = torch.load(checkpoint_dir+args.checkpoint)
+        checkpoint = torch.load(checkpoint_dir + args.checkpoint)
         model.load_state_dict(checkpoint['model_state_dict'])
-        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         if args.finetune:
-            start_epoch = 0
+            start_epoch = 1
         else:
+            optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
             start_epoch = checkpoint['epoch'] + 1
     else:
         model.apply(initialize_weights)
         start_epoch = 1
-    model = model.to(DEVICE)
+    
+    if torch.cuda.device_count() > 1:
+        print("Let’s use ",torch.cuda.device_count(),“GPUS!”)
+        model = nn.DataParallel(model, device_ids=[0,1]).cuda()
+    # model = model.to(DEVICE)
 
     criterion = nn.CTCLoss(blank=0)
 
