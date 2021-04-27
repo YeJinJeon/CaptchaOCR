@@ -150,7 +150,7 @@ if __name__ == "__main__":
         start_epoch = 1
     
     if torch.cuda.device_count() > 1:
-        print("Let’s use ",torch.cuda.device_count(),“GPUS!”)
+        print("Let’s use " + str(torch.cuda.device_count()) + 'GPUS!')
         model = nn.DataParallel(model, device_ids=[0,1]).cuda()
     # model = model.to(DEVICE)
 
