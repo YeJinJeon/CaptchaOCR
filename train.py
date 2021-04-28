@@ -101,7 +101,7 @@ if __name__ == "__main__":
     if not os.path.exists(checkpoint_dir):
         os.makedirs(checkpoint_dir)
 
-    # Define character maps
+    # Check character maps
     captcha_images = []
     captcha_images.extend(os.listdir(train_data_path))
     captcha_images.extend(os.listdir(val_data_path))
@@ -148,14 +148,9 @@ if __name__ == "__main__":
         model.apply(initialize_weights)
         start_epoch = 1
     
-    if torch.cuda.device_count() > 1:
-        print("================= Using multi GPUS ===================")
-        device_ids = [0, 1]
-        model = nn.DataParallel(model, device_ids=device_ids).to(DEVICE)
-        optimizer = nn.DataParallel(optimizer, device_ids=device_ids).to(DEVICE)
-    else:
-        model = model.to(DEVICE)
+    model = model.to(DEVICE)
 
+    #[TO-DO] to use multigpu 
     criterion = nn.CTCLoss(blank=0)
 
     # Define writer
