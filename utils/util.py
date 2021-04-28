@@ -42,7 +42,7 @@ def encode(labels):
     
     labels_string = ''.join(labels)
     targets = [char2idx[char] for char in labels_string]
-    targets = torch.IntTensor(targets).to(DEVICE)
+    targets = torch.IntTensor(targets)
     
     return (targets, lens)
 
