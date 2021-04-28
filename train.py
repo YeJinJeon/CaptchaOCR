@@ -64,6 +64,7 @@ def evaluate(val_loader, model, criterion):
         for x, y in tqdm(val_loader, leave=False):
 
             pred = model(x.to(DEVICE))
+            print(pred.device)
             loss = compute_loss(y, pred, criterion)
             epoch_loss += loss.item()
             batch_num += 1
