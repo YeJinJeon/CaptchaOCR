@@ -150,7 +150,9 @@ if __name__ == "__main__":
     
     if torch.cuda.device_count() > 1:
         print("================= Using multi GPUS ===================")
-        model = nn.DataParallel(model, device_ids=[0,1]).to(DEVICE)
+        device_ids = [0, 1]
+        model = nn.DataParallel(model, device_ids=device_ids).to(DEVICE)
+        optimizer = nn.DataParallel(optimizer, device_ids=device_ids).to(DEVICE)
     else:
         model = model.to(DEVICE)
 
