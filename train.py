@@ -38,6 +38,7 @@ def train(train_loader, model, criterion, optimizer):
 
     epoch_loss = 0
     batch_num = 0
+    model.train()
     for x, y in tqdm(train_loader, leave=False):
 
         optimizer.zero_grad()
@@ -59,7 +60,7 @@ def evaluate(val_loader, model, criterion):
 
     epoch_loss = 0
     batch_num = 0
-
+    model.eval()
     with torch.no_grad():
         for x, y in tqdm(val_loader, leave=False):
 
@@ -149,6 +150,9 @@ if __name__ == "__main__":
         start_epoch = 1
     
     model = model.to(DEVICE)
+
+    for p in model.parameters():
+        print(p.device)
 
     #[TO-DO] to use multigpu 
     criterion = nn.CTCLoss(blank=0)
