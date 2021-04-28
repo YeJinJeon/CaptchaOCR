@@ -21,7 +21,10 @@ from model import CRNN
 from utils.util import *
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   
+os.environ["CUDA_VISIBLE_DEVICES"]="0"
 cpu_count = mp.cpu_count()
+
 
 def initialize_weights(m):
     class_name = m.__class__.__name__
@@ -151,10 +154,7 @@ if __name__ == "__main__":
     
     model = model.to(DEVICE)
 
-    for p in model.parameters():
-        print(p.device)
-
-    #[TO-DO] to use multigpu 
+    # [TO-DO] fix to use multigpu 
     criterion = nn.CTCLoss(blank=0)
 
     # Define writer
