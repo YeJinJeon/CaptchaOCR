@@ -44,8 +44,6 @@ def train(train_loader, model, criterion, optimizer):
 
         optimizer.zero_grad()
         pred = model(x.to(DEVICE))
-        pred_decode = decode(pred.cpu())
-        pred_final = [correct_prediction(p) for p in pred_decode]
         loss = compute_loss(y, pred, criterion)
         loss.backward()
         nn.utils.clip_grad_norm_(model.parameters(), CLIP_NORM)
@@ -66,9 +64,7 @@ def evaluate(val_loader, model, criterion):
         for x, y in tqdm(val_loader, leave=False):
 
             pred = model(x.to(DEVICE))
-            
             loss = compute_loss(y, pred, criterion)
-
             epoch_loss += loss.item()
             batch_num += 1
 
