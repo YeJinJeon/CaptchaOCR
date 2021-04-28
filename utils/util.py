@@ -24,6 +24,7 @@ def correct_prediction(word):
     corrected_word = "".join(parts)
     return corrected_word
 
+
 def decode(labels):
     tokens = F.softmax(labels, 2).argmax(2)
     tokens = tokens.numpy().T
@@ -44,7 +45,7 @@ def encode(labels):
     targets = [char2idx[char] for char in labels_string]
     targets = torch.IntTensor(targets)
     
-    return (targets.to(DEVICE), lens.to(DEVICE))
+    return (targets, lens)
 
 
 def compute_loss(gtruth, pred, criterion):

@@ -20,6 +20,7 @@ from config import *
 from model import CRNN
 from utils.util import *
 
+torch.backends.cudnn.benchmark = True
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 cpu_count = mp.cpu_count()
 
