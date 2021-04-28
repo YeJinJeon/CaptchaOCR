@@ -34,38 +34,6 @@ def initialize_weights(m):
         m.weight.data.normal_(1.0, 0.02)
         m.bias.data.fill_(0)
 
-def compute_loss(gtruth, pred, criterion):
-    """
-    text_batch: list of strings of length equal to batch size
-    text_batch_logits: Tensor of size([T, batch_size, num_classes])
-    """
-    print("================================")
-    print(pred.device)
-    print(pred.shape)
-
-    predicted_capchas = F.log_softmax(pred, 2)
-    predicted_capchas_lens = torch.full(size=(predicted_capchas.size(1),), 
-                                       fill_value=predicted_capchas.size(0), 
-                                       dtype=torch.int32).to(DEVICE)
-
-    gtruth_capchas, gtruth_capchas_lens = encode(gtruth)
-
-    print(pred.shape)
-    print(predicted_capchas.shape)
-    print(gtruth_capchas.shape)
-    print(predicted_capchas_lens.shape)
-    print(gtruth_capchas_lens.shape)
-
-    print(pred.device)
-    print(predicted_capchas.device)
-    print(gtruth_capchas.device)
-    print(predicted_capchas_lens.device)
-    print(gtruth_capchas_lens.device)
-
-    loss = criterion(predicted_capchas, gtruth_capchas, predicted_capchas_lens, gtruth_capchas_lens)
-
-    return loss
-
 
 def train(train_loader, model, criterion, optimizer):
 
@@ -76,7 +44,6 @@ def train(train_loader, model, criterion, optimizer):
 
         optimizer.zero_grad()
         pred = model(x.to(DEVICE))
-        print(pred.device)
         loss = compute_loss(y, pred, criterion)
         loss.backward()
         nn.utils.clip_grad_norm_(model.parameters(), CLIP_NORM)
