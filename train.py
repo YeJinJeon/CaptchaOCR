@@ -149,7 +149,8 @@ if __name__ == "__main__":
         start_epoch = 1
     
     if torch.cuda.device_count() > 1:
-        model = nn.DataParallel(model, device_ids=[0,1]).cuda()
+        print("================= Using multi GPUS ===================")
+        model = nn.DataParallel(model, device_ids=[0,1]).to(DEVICE)
     else:
         model = model.to(DEVICE)
 
