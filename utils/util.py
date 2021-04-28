@@ -46,14 +46,12 @@ def encode(labels):
     
     return (targets, lens)
 
+
 def compute_loss(gtruth, pred, criterion):
     """
     text_batch: list of strings of length equal to batch size
     text_batch_logits: Tensor of size([T, batch_size, num_classes])
     """
-    print("================================")
-    print(pred.device)
-    print(pred.shape)
 
     predicted_capchas = F.log_softmax(pred, 2)
     predicted_capchas_lens = torch.full(size=(predicted_capchas.size(1),), 
@@ -62,22 +60,9 @@ def compute_loss(gtruth, pred, criterion):
 
     gtruth_capchas, gtruth_capchas_lens = encode(gtruth)
 
-    print(pred.shape)
-    print(predicted_capchas.shape)
-    print(gtruth_capchas.shape)
-    print(predicted_capchas_lens.shape)
-    print(gtruth_capchas_lens.shape)
-
-    print(pred.device)
-    print(predicted_capchas.device)
-    print(gtruth_capchas.device)
-    print(predicted_capchas_lens.device)
-    print(gtruth_capchas_lens.device)
-
     loss = criterion(predicted_capchas, gtruth_capchas, predicted_capchas_lens, gtruth_capchas_lens)
-
     return loss
-    
+
 
 def epoch_time(start_time, end_time):
     elapsed_time = end_time - start_time

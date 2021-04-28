@@ -140,7 +140,7 @@ if __name__ == "__main__":
     lr_scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, verbose=True, patience=5)
 
     # [TO-DO] fix to use multigpu 
-    criterion = nn.CTCLoss(blank=0)
+    criterion = nn.CTCLoss(blank=0).to(DEVICE)
 
     # Define writer
     writer = SummaryWriter(log_dir)
