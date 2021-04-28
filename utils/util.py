@@ -63,13 +63,13 @@ def compute_loss(gtruth, pred, criterion):
     print(predicted_capchas.shape)
     print(gtruth_capchas.shape)
     print(predicted_capchas_lens.shape)
-    print(gtruth_capchas_len.shape)
+    print(gtruth_capchas_lens.shape)
 
     print(pred.dtype)
     print(predicted_capchas.dtype)
     print(gtruth_capchas.dtype)
     print(predicted_capchas_lens.dtype)
-    print(gtruth_capchas_len.dtype)
+    print(gtruth_capchas_lens.dtype)
 
     loss = criterion(predicted_capchas, gtruth_capchas, predicted_capchas_lens, gtruth_capchas_lens)
 
