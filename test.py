@@ -77,7 +77,7 @@ if __name__ == "__main__":
     if args.kab:
         test_data_path = '../data/test_kab/'
         csv_path = './result_kab.csv'
-    if args.sc:
+    elif args.sc:
         test_data_path = '../data/test/'
         csv_path = './result.csv' 
     else:
@@ -102,6 +102,8 @@ if __name__ == "__main__":
     rnn_hidden_size = 256
 
     model = CRNN(num_chars=num_chars, rnn_hidden_size=rnn_hidden_size)
+    if args.checkpoint == None:
+        args.checkpoint = 'crnn-best-model.pt'
     checkpoint = torch.load('checkpoints/'+ args.checkpoint)
     model.load_state_dict(checkpoint['model_state_dict'])
     model = model.to(DEVICE)
