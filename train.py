@@ -69,7 +69,7 @@ def evaluate(val_loader, model, criterion):
         for x, y in tqdm(val_loader, leave=False):
 
             pred = model(x.to(DEVICE))
-
+            
             loss = compute_loss(y, pred, criterion)
 
             epoch_loss += loss.item()
@@ -139,21 +139,22 @@ if __name__ == "__main__":
     rnn_hidden_size = 256
 
     model = CRNN(num_chars=num_chars, rnn_hidden_size=rnn_hidden_size)
-    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= WEIGHT_DECAY)
-    lr_scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, verbose=True, patience=5)
 
     if args.resume == True:
         checkpoint = torch.load(checkpoint_dir + args.checkpoint)
         model.load_state_dict(checkpoint['model_state_dict'])
+        model = model.to(DEVICE)
+        optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= WEIGHT_DECAY)
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         start_epoch = checkpoint['epoch'] + 1
         if args.finetune:
             start_epoch = 1
     else:
         model.apply(initialize_weights)
+        model = model.to(DEVICE)
+        optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= WEIGHT_DECAY)
         start_epoch = 1
-    
-    model = model.to(DEVICE)
+    lr_scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, verbose=True, patience=5)
 
     # [TO-DO] fix to use multigpu 
     criterion = nn.CTCLoss(blank=0)
