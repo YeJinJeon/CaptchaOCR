@@ -58,12 +58,6 @@ def compute_loss(gtruth, pred, criterion):
                                        dtype=torch.int32).to(DEVICE)
 
     gtruth_capchas, gtruth_capchas_lens = encode(gtruth)
-
-    print(predicted_capchas.shape)
-    print(predicted_capchas_lens.shape)
-    print(gtruth_capchas.shape)
-    print(gtruth_capchas_lens.shape)
-    
     loss = criterion(predicted_capchas, gtruth_capchas, predicted_capchas_lens, gtruth_capchas_lens)
 
     return loss
