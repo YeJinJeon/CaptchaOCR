@@ -22,9 +22,10 @@ from config import *
 from model import CRNN
 from utils.util import *
 
-DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   
 os.environ["CUDA_VISIBLE_DEVICES"]="0"
+
+DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 cpu_count = mp.cpu_count()
 
 
