@@ -44,7 +44,7 @@ def encode(labels):
     targets = [char2idx[char] for char in labels_string]
     targets = torch.IntTensor(targets)
     
-    return (targets, lens)
+    return (targets.to(DEVICE), lens.to(DEVICE))
 
 
 def compute_loss(gtruth, pred, criterion):
