@@ -82,10 +82,6 @@ if __name__ == "__main__":
         action = "store_true"
     )
     parser.add_argument(
-        "--finetune",
-        action = "store_true"
-    )
-    parser.add_argument(
         "--checkpoint",
         type = str,
         default=None
@@ -117,10 +113,6 @@ if __name__ == "__main__":
     if data_letters != letters:
         sys.exit('Dataset contains other letters')
 
-    if args.finetune:
-        args.resume = True
-        train_data_path = '../data/finetune/'
-
     # Get batches of dataset
     train_dataset = CapchaDataset(train_data_path)
     val_dataset = CapchaDataset(val_data_path)
@@ -144,8 +136,6 @@ if __name__ == "__main__":
         optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay= WEIGHT_DECAY)
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         start_epoch = checkpoint['epoch'] + 1
-        if args.finetune:
-            start_epoch = 1
     else:
         model.apply(initialize_weights)
         model = model.to(DEVICE)
