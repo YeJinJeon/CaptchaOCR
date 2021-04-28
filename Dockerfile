@@ -10,13 +10,8 @@ RUN pip3 install \
     tqdm \
     numpy \
     pandas \
-    # pytz pandas python-dateutil 
     scikit-learn \
-    # scipy threadpoolctl joblib scikit-learn
     tensorboard \
-    # absl-py cachetools certifi chardet google-auth google-auth-oauthlib grpcio \
-    # importlib-metadata markdown oauthlib protobuf pyasn1 pyasn1-modules requests requests-oauthlib rsa \
-    # setuptools tensorboard tensorboard-data-server tensorboard-plugin-wit urllib3 werkzeug zipp
     matplotlib 
     
 # Install pytorch - typing-extensions, torch, pillow, torchvision, torchaudio
