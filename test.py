@@ -48,9 +48,7 @@ def test(test_loader, model, criterion):
             df['Actual'] = y
             df['Prediction'] = [correct_prediction(p) for p in pred]
             results_test = pd.concat([results_test, df])
-            results_test = pd.concat([results_test, df])
 
-        results_test = results_test.reset_index(drop=True)
         results_test = results_test.reset_index(drop=True)
 
     return (test_loss / batch_num), results_test
