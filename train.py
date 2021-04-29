@@ -115,8 +115,8 @@ if __name__ == "__main__":
     train_dataset = CapchaDataset(train_data_path)
     val_dataset = CapchaDataset(val_data_path)
 
-    train_loader = DataLoader(train_dataset, num_workers=cpu_count, batch_size=BATCH_SIZE, shuffle=True)
-    val_loader = DataLoader(val_dataset, num_workers=cpu_count, batch_size=BATCH_SIZE, shuffle=False)
+    train_loader = DataLoader(train_dataset, num_workers=gpu_count, batch_size=BATCH_SIZE, shuffle=True)
+    val_loader = DataLoader(val_dataset, num_workers=gpu_count, batch_size=BATCH_SIZE, shuffle=False)
 
     print(f'{len(train_loader)} batches in the train_loader')
     print(f'{len(val_loader)} batches in the test_loader')
