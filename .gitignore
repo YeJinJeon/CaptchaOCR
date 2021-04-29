@@ -2,5 +2,4 @@ __pycache__/
 .vscode/
 logs/
 checkpoints/
-result.csv
-result_kab.csv
+result*
